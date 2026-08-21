@@ -34,66 +34,103 @@ public class Heisenberg {
         boolean running = true;
         while(running) {
             input = scanner.nextLine();
-            String[] parts = input.trim().split("\\s+");
-            CommandType command = CommandType.valueOf(parts[0].toUpperCase());
+            try {
+                if (input.trim().isEmpty()) {
+                    throw new InvalidCommandException("Unknown command was given.");
+                }
+                String[] parts = input.trim().split("\\s+");
+                CommandType command;
+                try {
+                    command = CommandType.valueOf(parts[0].toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidCommandException("Unknown command was given.");
+                }
 
-            switch(command) {
-                case MARK: {
-                    if (checkMark(parts)) {
-                        int index = Integer.parseInt(parts[1]);
-                        list.get(index - 1).mark();
-                        System.out.println("Nice! I've marked this task as done: \n" + list.get(index - 1));
+                switch (command) {
+                    case MARK: {
+                        if (checkMark(parts)) {
+                            int index = Integer.parseInt(parts[1]);
+                            if (index > list.size() || index < 1) {
+                                throw new InvalidTaskNumberException("This task does not exist!");
+                            }
+                            list.get(index - 1).mark();
+                            System.out.println("Nice! I've marked this task as done: \n" + list.get(index - 1));
+                        } else {
+                            throw new InvalidFormatException("Command is formatted incorrectly.");
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                case LIST: {
-                    System.out.println("Here are the tasks in your list:");
-                    for (int i = 0; i < list.size(); i++) {
-                        System.out.printf("%d. %s%n", i + 1, list.get(i));
+                    case LIST: {
+                        if (parts.length != 1) {
+                            throw new InvalidFormatException("Command is formatted incorrectly.");
+                        }
+                        System.out.println("Here are the tasks in your list:");
+                        for (int i = 0; i < list.size(); i++) {
+                            System.out.printf("%d. %s%n", i + 1, list.get(i));
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                case BYE: {
-                    System.out.print("Goodbye!");
-                    running = false;
-                    break;
-                }
+                    case BYE: {
+                        if (parts.length != 1) {
+                            throw new InvalidFormatException("Command is formatted incorrectly.");
+                        }
+                        System.out.print("Goodbye!");
+                        running = false;
+                        break;
+                    }
 
-                case DEADLINE: {
-                    String description = getDescription(parts);
-                    String by = getByOrFrom(parts);
-                    Deadline curr = new Deadline(description, by);
-                    list.add(curr);
-                    printTask(curr, list.size());
-                    break;
-                }
+                    case DEADLINE: {
+                        String description = getDescription(parts);
+                        if (description.isEmpty()) {
+                            throw new InvalidFormatException("Task is formatted incorrectly.");
+                        }
+                        String by = getByOrFrom(parts, CommandType.DEADLINE);
+                        Deadline curr = new Deadline(description, by);
+                        list.add(curr);
+                        printTask(curr, list.size());
+                        break;
+                    }
 
-                case TODO: {
-                    String description = getDescription(parts);
-                    ToDo curr = new ToDo(description);
-                    list.add(curr);
-                    printTask(curr, list.size());
-                    break;
-                }
+                    case TODO: {
+                        String description = getDescription(parts);
+                        if (description.isEmpty()) {
+                            throw new InvalidFormatException("Task is formatted incorrectly.");
+                        }
+                        ToDo curr = new ToDo(description);
+                        list.add(curr);
+                        printTask(curr, list.size());
+                        break;
+                    }
 
-                case EVENT: {
-                    String description = getDescription(parts);
-                    String from = getByOrFrom(parts);
-                    String to = getTo(parts);
-                    Event curr = new Event(description, from, to);
-                    list.add(curr);
-                    printTask(curr, list.size());
-                    break;
+                    case EVENT: {
+                        String description = getDescription(parts);
+                        if (description.isEmpty()) {
+                            throw new InvalidFormatException("Task is formatted incorrectly.");
+                        }
+                        String from = getByOrFrom(parts, CommandType.EVENT);
+                        String to = getTo(parts);
+                        Event curr = new Event(description, from, to);
+                        list.add(curr);
+                        printTask(curr, list.size());
+                        break;
+                    }
                 }
+            } catch(InvalidCommandException
+                    | InvalidFormatException
+                    | InvalidTaskNumberException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
     private static boolean checkMark(String[] parts) {
+        if(parts.length != 2) {
+            return false;
+        }
         try {
             Integer.parseInt(parts[1]);
-            return parts.length == 2;
+            return true;
         } catch (NumberFormatException e) {
             return false;
         }
@@ -107,13 +144,25 @@ public class Heisenberg {
             }
             sb.append(parts[i]).append(" ");
         }
-        return sb.toString().trim();
+        String value = sb.toString().trim();
+        if (value.isEmpty()) {
+            throw new InvalidFormatException("Task is formatted incorrectly.");
+        }
+        return value;
     }
 
-    private static String getByOrFrom(String[] parts) {
+    private static String getByOrFrom(String[] parts, CommandType command) {
         int i = 1;
-        while(!parts[i].equals("/by") && !parts[i].equals("/from")) {
+        while(i < parts.length && !(command == CommandType.DEADLINE && parts[i].equals("/by")) && !(command == CommandType.EVENT && parts[i].equals("/from"))) {
+            if(command == CommandType.EVENT && parts[i].equals("/to")) {
+                throw new InvalidFormatException("Task is formatted incorrectly.");
+            }
+
             i++;
+        }
+
+        if(i == parts.length) {
+            throw new InvalidFormatException("Task is formatted incorrectly.");
         }
 
         StringBuilder sb = new StringBuilder();
@@ -123,19 +172,32 @@ public class Heisenberg {
             }
             sb.append(parts[j]).append(" ");
         }
-        return sb.toString().trim();
+        String value = sb.toString().trim();
+        if (value.isEmpty()) {
+            throw new InvalidFormatException("Task is formatted incorrectly.");
+        }
+        return value;
     }
 
     private static String getTo(String[] parts) {
         int i = 1;
-        while(!parts[i].equals("/to")) {
+        while(i < parts.length && !parts[i].equals("/to")) {
             i++;
         }
+
+        if(i == parts.length) {
+            throw new InvalidFormatException("Task is formatted incorrectly.");
+        }
+
         StringBuilder sb = new StringBuilder();
         for(int j = i + 1; j < parts.length; j++) {
             sb.append(parts[j]).append(" ");
         }
-        return sb.toString().trim();
+        String value = sb.toString().trim();
+        if (value.isEmpty()) {
+            throw new InvalidFormatException("Task is formatted incorrectly.");
+        }
+        return value;
     }
 
     private static void printTask(Task task, int size) {
