@@ -48,7 +48,7 @@ public class Heisenberg {
 
                 switch (command) {
                     case MARK: {
-                        if (checkMark(parts)) {
+                        if (checkMarkNDelete(parts)) {
                             int index = Integer.parseInt(parts[1]);
                             if (index > list.size() || index < 1) {
                                 throw new InvalidTaskNumberException("This task does not exist!");
@@ -116,6 +116,20 @@ public class Heisenberg {
                         printTask(curr, list.size());
                         break;
                     }
+                    case DELETE: {
+                        if (checkMarkNDelete(parts)) {
+                            int index = Integer.parseInt(parts[1]);
+                            if (index > list.size() || index < 1) {
+                                throw new InvalidTaskNumberException("This task does not exist!");
+                            }
+                            Task toRemove = list.get(index - 1);
+                            list.remove(index - 1);
+                            System.out.printf("Noted. I've removed this task: \n %s \n Now you have %d tasks in the list. \n", toRemove, list.size());
+                        } else {
+                            throw new InvalidFormatException("Command is formatted incorrectly.");
+                        }
+                        break;
+                    }
                 }
             } catch(InvalidCommandException
                     | InvalidFormatException
@@ -124,7 +138,7 @@ public class Heisenberg {
             }
         }
     }
-    private static boolean checkMark(String[] parts) {
+    private static boolean checkMarkNDelete(String[] parts) {
         if(parts.length != 2) {
             return false;
         }
