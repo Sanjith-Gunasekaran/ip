@@ -5,9 +5,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.util.Locale;
 
 
 public class Heisenberg {
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter
+            .ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
+            .withResolverStyle(ResolverStyle.STRICT);
+
     public static void main(String[] args) {
         String heisenberg = """
                 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
@@ -93,7 +102,7 @@ public class Heisenberg {
                         if (description.isEmpty()) {
                             throw new InvalidFormatException("Task is formatted incorrectly.");
                         }
-                        String by = getByOrFrom(parts, CommandType.DEADLINE);
+                        LocalDateTime by = parseDateTime(getByOrFrom(parts, CommandType.DEADLINE));
                         Deadline curr = new Deadline(description, by);
                         list.add(curr);
                         saveTasks(list);
@@ -118,8 +127,11 @@ public class Heisenberg {
                         if (description.isEmpty()) {
                             throw new InvalidFormatException("Task is formatted incorrectly.");
                         }
-                        String from = getByOrFrom(parts, CommandType.EVENT);
-                        String to = getTo(parts);
+                        LocalDateTime from = parseDateTime(getByOrFrom(parts, CommandType.EVENT));
+                        LocalDateTime to = parseDateTime(getTo(parts));
+                        if (!from.isBefore(to)) {
+                            throw new InvalidFormatException("Event must start before it ends.");
+                        }
                         Event curr = new Event(description, from, to);
                         list.add(curr);
                         saveTasks(list);
@@ -194,7 +206,7 @@ public class Heisenberg {
                         System.out.println("Skipping corrupted task record.");
                         continue;
                     }
-                    task = new Deadline(parts[2], parts[3]);
+                    task = new Deadline(parts[2], LocalDateTime.parse(parts[3], DATE_TIME_FORMAT));
                     break;
                 case "E":
                     if (parts.length != 5 || parts[2].isBlank()
@@ -202,7 +214,8 @@ public class Heisenberg {
                         System.out.println("Skipping corrupted task record.");
                         continue;
                     }
-                    task = new Event(parts[2], parts[3], parts[4]);
+                    task = new Event(parts[2], LocalDateTime.parse(parts[3], DATE_TIME_FORMAT),
+                            LocalDateTime.parse(parts[4], DATE_TIME_FORMAT));
                     break;
                 default:
                     System.out.println("Skipping corrupted task record.");
@@ -231,10 +244,11 @@ public class Heisenberg {
                     String status = task.isDone() ? "1" : "0";
                     if (task instanceof Deadline deadline) {
                         writer.write("D|" + status + "|" + task.getDescription()
-                                + "|" + deadline.getBy());
+                                + "|" + deadline.getBy().format(DATE_TIME_FORMAT));
                     } else if (task instanceof Event event) {
                         writer.write("E|" + status + "|" + task.getDescription()
-                                + "|" + event.getFrom() + "|" + event.getTo());
+                                + "|" + event.getFrom().format(DATE_TIME_FORMAT)
+                                + "|" + event.getTo().format(DATE_TIME_FORMAT));
                     } else {
                         writer.write("T|" + status + "|" + task.getDescription());
                     }
@@ -243,6 +257,14 @@ public class Heisenberg {
             }
         } catch (IOException e) {
             System.out.println("Unable to save tasks.");
+        }
+    }
+
+    private static LocalDateTime parseDateTime(String value) {
+        try {
+            return LocalDateTime.parse(value, DATE_TIME_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new InvalidFormatException("Date/time must use yyyy-MM-dd HHmm format.");
         }
     }
 
