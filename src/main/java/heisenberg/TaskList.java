@@ -21,10 +21,6 @@ public class TaskList implements Iterable<Task> {
         return tasks.remove(toIndex(taskNumber));
     }
 
-    public Task editTask(int taskNumber, Task replacement) {
-        return tasks.set(toIndex(taskNumber), replacement);
-    }
-
     public Task markTask(int taskNumber) {
         Task task = getTask(taskNumber);
         task.mark();
