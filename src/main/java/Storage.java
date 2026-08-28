@@ -45,7 +45,7 @@ public class Storage {
                 list.add(task);
             }
         } catch (IOException e) {
-            System.out.println("Unable to load saved tasks.");
+            throw new StorageException("Unable to load saved tasks.", e);
         }
     }
 
@@ -72,7 +72,7 @@ public class Storage {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Unable to save tasks.");
+            throw new StorageException("Unable to save tasks.", e);
         }
     }
 }
