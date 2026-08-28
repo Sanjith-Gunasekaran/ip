@@ -1,10 +1,6 @@
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -42,7 +38,8 @@ public class Heisenberg {
 
         System.out.print(heisenberg);
         List<Task> list = new ArrayList<>();
-        readTasks(list);
+        Storage storage = new Storage();
+        storage.loadTasks(list);
 
         Scanner scanner = new Scanner(System.in);
         String input;
@@ -69,7 +66,7 @@ public class Heisenberg {
                                 throw new InvalidTaskNumberException("This task does not exist!");
                             }
                             list.get(index - 1).mark();
-                            saveTasks(list);
+                            storage.saveTasks(list);
                             System.out.println("Nice! I've marked this task as done: \n" + list.get(index - 1));
                         } else {
                             throw new InvalidFormatException("Command is formatted incorrectly.");
@@ -105,7 +102,7 @@ public class Heisenberg {
                         LocalDateTime by = parseDateTime(getByOrFrom(parts, CommandType.DEADLINE));
                         Deadline curr = new Deadline(description, by);
                         list.add(curr);
-                        saveTasks(list);
+                        storage.saveTasks(list);
                         printTask(curr, list.size());
                         break;
                     }
@@ -117,7 +114,7 @@ public class Heisenberg {
                         }
                         ToDo curr = new ToDo(description);
                         list.add(curr);
-                        saveTasks(list);
+                        storage.saveTasks(list);
                         printTask(curr, list.size());
                         break;
                     }
@@ -134,7 +131,7 @@ public class Heisenberg {
                         }
                         Event curr = new Event(description, from, to);
                         list.add(curr);
-                        saveTasks(list);
+                        storage.saveTasks(list);
                         printTask(curr, list.size());
                         break;
                     }
@@ -146,7 +143,7 @@ public class Heisenberg {
                             }
                             Task toRemove = list.get(index - 1);
                             list.remove(index - 1);
-                            saveTasks(list);
+                            storage.saveTasks(list);
                             System.out.printf("Noted. I've removed this task: \n %s \n Now you have %d tasks in the list. \n", toRemove, list.size());
                         } else {
                             throw new InvalidFormatException("Command is formatted incorrectly.");
@@ -170,93 +167,6 @@ public class Heisenberg {
             return true;
         } catch (NumberFormatException e) {
             return false;
-        }
-    }
-
-    private static void readTasks(List<Task> list) {
-        Path file = Path.of("data", "storage.txt");
-
-        if (!Files.exists(file)) {
-            return;
-        }
-
-        try {
-            for (String line : Files.readAllLines(file)) {
-                if (line.isBlank()) {
-                    continue;
-                }
-
-                String[] parts = line.split("\\|", -1);
-                if (parts.length < 2 || (!parts[1].equals("0") && !parts[1].equals("1"))) {
-                    System.out.println("Skipping corrupted task record.");
-                    continue;
-                }
-                Task task;
-
-                switch (parts[0]) {
-                case "T":
-                    if (parts.length != 3 || parts[2].isBlank()) {
-                        System.out.println("Skipping corrupted task record.");
-                        continue;
-                    }
-                    task = new ToDo(parts[2]);
-                    break;
-                case "D":
-                    if (parts.length != 4 || parts[2].isBlank() || parts[3].isBlank()) {
-                        System.out.println("Skipping corrupted task record.");
-                        continue;
-                    }
-                    task = new Deadline(parts[2], LocalDateTime.parse(parts[3], DATE_TIME_FORMAT));
-                    break;
-                case "E":
-                    if (parts.length != 5 || parts[2].isBlank()
-                            || parts[3].isBlank() || parts[4].isBlank()) {
-                        System.out.println("Skipping corrupted task record.");
-                        continue;
-                    }
-                    task = new Event(parts[2], LocalDateTime.parse(parts[3], DATE_TIME_FORMAT),
-                            LocalDateTime.parse(parts[4], DATE_TIME_FORMAT));
-                    break;
-                default:
-                    System.out.println("Skipping corrupted task record.");
-                    continue;
-                }
-
-                if (parts[1].equals("1")) {
-                    task.mark();
-                }
-                list.add(task);
-            }
-        } catch (IOException e) {
-            System.out.println("Unable to load saved tasks.");
-        }
-    }
-
-    private static void saveTasks(List<Task> list) {
-        Path file = Path.of("data", "storage.txt");
-
-        try {
-            Files.createDirectories(file.getParent());
-            try (var writer = Files.newBufferedWriter(file,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING)) {
-                for (Task task : list) {
-                    String status = task.isDone() ? "1" : "0";
-                    if (task instanceof Deadline deadline) {
-                        writer.write("D|" + status + "|" + task.getDescription()
-                                + "|" + deadline.getBy().format(DATE_TIME_FORMAT));
-                    } else if (task instanceof Event event) {
-                        writer.write("E|" + status + "|" + task.getDescription()
-                                + "|" + event.getFrom().format(DATE_TIME_FORMAT)
-                                + "|" + event.getTo().format(DATE_TIME_FORMAT));
-                    } else {
-                        writer.write("T|" + status + "|" + task.getDescription());
-                    }
-                    writer.newLine();
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Unable to save tasks.");
         }
     }
 
