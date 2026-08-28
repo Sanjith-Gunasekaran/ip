@@ -2,17 +2,9 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.format.ResolverStyle;
-import java.util.Locale;
 
 
 public class Heisenberg {
-    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter
-            .ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
-            .withResolverStyle(ResolverStyle.STRICT);
-
     public static void main(String[] args) {
         UI ui = new UI();
         ui.showWelcome();
@@ -26,60 +18,40 @@ public class Heisenberg {
 
         Scanner scanner = new Scanner(System.in);
         String input;
-        boolean running = true;
-        while(running) {
+        boolean isRunning = true;
+        while(isRunning) {
             input = scanner.nextLine();
             try {
-                if (input.trim().isEmpty()) {
-                    throw new InvalidCommandException("Unknown command was given.");
-                }
-                String[] parts = input.trim().split("\\s+");
-                CommandType command;
-                try {
-                    command = CommandType.valueOf(parts[0].toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    throw new InvalidCommandException("Unknown command was given.");
-                }
+                Parser parser = new Parser(input);
 
-                switch (command) {
+                switch (parser.getCommand()) {
                     case MARK: {
-                        if (checkMarkNDelete(parts)) {
-                            int index = Integer.parseInt(parts[1]);
-                            if (index > list.size() || index < 1) {
-                                throw new InvalidTaskNumberException("This task does not exist!");
-                            }
-                            list.get(index - 1).mark();
-                            storage.saveTasks(list);
-                            ui.showTaskMarked(list.get(index - 1));
-                        } else {
-                            throw new InvalidFormatException("Command is formatted incorrectly.");
+                        int index = parser.getTaskNumber();
+                        if (index > list.size() || index < 1) {
+                            throw new InvalidTaskNumberException("This task does not exist!");
                         }
+                        list.get(index - 1).mark();
+                        storage.saveTasks(list);
+                        ui.showTaskMarked(list.get(index - 1));
                         break;
                     }
 
                     case LIST: {
-                        if (parts.length != 1) {
-                            throw new InvalidFormatException("Command is formatted incorrectly.");
-                        }
+                        parser.requireNoArguments();
                         ui.showTaskList(list);
                         break;
                     }
 
                     case BYE: {
-                        if (parts.length != 1) {
-                            throw new InvalidFormatException("Command is formatted incorrectly.");
-                        }
+                        parser.requireNoArguments();
                         ui.showGoodbye();
-                        running = false;
+                        isRunning = false;
                         break;
                     }
 
                     case DEADLINE: {
-                        String description = getDescription(parts);
-                        if (description.isEmpty()) {
-                            throw new InvalidFormatException("Task is formatted incorrectly.");
-                        }
-                        LocalDateTime by = parseDateTime(getByOrFrom(parts, CommandType.DEADLINE));
+                        String description = parser.getDescription();
+                        LocalDateTime by = parser.getDeadlineDateTime();
                         Deadline curr = new Deadline(description, by);
                         list.add(curr);
                         storage.saveTasks(list);
@@ -88,10 +60,7 @@ public class Heisenberg {
                     }
 
                     case TODO: {
-                        String description = getDescription(parts);
-                        if (description.isEmpty()) {
-                            throw new InvalidFormatException("Task is formatted incorrectly.");
-                        }
+                        String description = parser.getDescription();
                         ToDo curr = new ToDo(description);
                         list.add(curr);
                         storage.saveTasks(list);
@@ -100,12 +69,9 @@ public class Heisenberg {
                     }
 
                     case EVENT: {
-                        String description = getDescription(parts);
-                        if (description.isEmpty()) {
-                            throw new InvalidFormatException("Task is formatted incorrectly.");
-                        }
-                        LocalDateTime from = parseDateTime(getByOrFrom(parts, CommandType.EVENT));
-                        LocalDateTime to = parseDateTime(getTo(parts));
+                        String description = parser.getDescription();
+                        LocalDateTime from = parser.getEventFromDateTime();
+                        LocalDateTime to = parser.getEventToDateTime();
                         if (!from.isBefore(to)) {
                             throw new InvalidFormatException("Event must start before it ends.");
                         }
@@ -116,18 +82,14 @@ public class Heisenberg {
                         break;
                     }
                     case DELETE: {
-                        if (checkMarkNDelete(parts)) {
-                            int index = Integer.parseInt(parts[1]);
-                            if (index > list.size() || index < 1) {
-                                throw new InvalidTaskNumberException("This task does not exist!");
-                            }
-                            Task toRemove = list.get(index - 1);
-                            list.remove(index - 1);
-                            storage.saveTasks(list);
-                            ui.showTaskDeleted(toRemove, list);
-                        } else {
-                            throw new InvalidFormatException("Command is formatted incorrectly.");
+                        int index = parser.getTaskNumber();
+                        if (index > list.size() || index < 1) {
+                            throw new InvalidTaskNumberException("This task does not exist!");
                         }
+                        Task toRemove = list.get(index - 1);
+                        list.remove(index - 1);
+                        storage.saveTasks(list);
+                        ui.showTaskDeleted(toRemove, list);
                         break;
                     }
                 }
@@ -139,88 +101,4 @@ public class Heisenberg {
             }
         }
     }
-    private static boolean checkMarkNDelete(String[] parts) {
-        if(parts.length != 2) {
-            return false;
-        }
-        try {
-            Integer.parseInt(parts[1]);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
-    private static LocalDateTime parseDateTime(String value) {
-        try {
-            return LocalDateTime.parse(value, DATE_TIME_FORMAT);
-        } catch (DateTimeParseException e) {
-            throw new InvalidFormatException("Date/time must use yyyy-MM-dd HHmm format.");
-        }
-    }
-
-    private static String getDescription(String[] parts) {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 1; i < parts.length; i++) {
-            if(parts[i].equals("/by") || parts[i].equals("/from")) {
-                break;
-            }
-            sb.append(parts[i]).append(" ");
-        }
-        String value = sb.toString().trim();
-        if (value.isEmpty()) {
-            throw new InvalidFormatException("Task is formatted incorrectly.");
-        }
-        return value;
-    }
-
-    private static String getByOrFrom(String[] parts, CommandType command) {
-        int i = 1;
-        while(i < parts.length && !(command == CommandType.DEADLINE && parts[i].equals("/by")) && !(command == CommandType.EVENT && parts[i].equals("/from"))) {
-            if(command == CommandType.EVENT && parts[i].equals("/to")) {
-                throw new InvalidFormatException("Task is formatted incorrectly.");
-            }
-
-            i++;
-        }
-
-        if(i == parts.length) {
-            throw new InvalidFormatException("Task is formatted incorrectly.");
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for(int j = i + 1; j < parts.length; j++) {
-            if(parts[j].equals("/to")) {
-                break;
-            }
-            sb.append(parts[j]).append(" ");
-        }
-        String value = sb.toString().trim();
-        if (value.isEmpty()) {
-            throw new InvalidFormatException("Task is formatted incorrectly.");
-        }
-        return value;
-    }
-
-    private static String getTo(String[] parts) {
-        int i = 1;
-        while(i < parts.length && !parts[i].equals("/to")) {
-            i++;
-        }
-
-        if(i == parts.length) {
-            throw new InvalidFormatException("Task is formatted incorrectly.");
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for(int j = i + 1; j < parts.length; j++) {
-            sb.append(parts[j]).append(" ");
-        }
-        String value = sb.toString().trim();
-        if (value.isEmpty()) {
-            throw new InvalidFormatException("Task is formatted incorrectly.");
-        }
-        return value;
-    }
-
 }
