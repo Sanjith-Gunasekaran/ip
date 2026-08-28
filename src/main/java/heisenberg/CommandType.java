@@ -1,3 +1,5 @@
+package heisenberg;
+
 public enum CommandType {
     TODO,
     DEADLINE,
@@ -7,4 +9,3 @@ public enum CommandType {
     BYE,
     DELETE
 }
-

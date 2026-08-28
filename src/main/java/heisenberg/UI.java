@@ -1,3 +1,5 @@
+package heisenberg;
+
 /** Handles all messages displayed to the user. */
 public class UI {
     public void showWelcome() {
