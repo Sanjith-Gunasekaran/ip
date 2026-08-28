@@ -1,6 +1,4 @@
 import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.List;
 import java.time.LocalDateTime;
 
 
@@ -8,10 +6,10 @@ public class Heisenberg {
     public static void main(String[] args) {
         UI ui = new UI();
         ui.showWelcome();
-        List<Task> list = new ArrayList<>();
+        TaskList taskList = new TaskList();
         Storage storage = new Storage();
         try {
-            storage.loadTasks(list);
+            storage.loadTasks(taskList);
         } catch (StorageException e) {
             ui.showError(e.getMessage());
         }
@@ -27,18 +25,15 @@ public class Heisenberg {
                 switch (parser.getCommand()) {
                     case MARK: {
                         int index = parser.getTaskNumber();
-                        if (index > list.size() || index < 1) {
-                            throw new InvalidTaskNumberException("This task does not exist!");
-                        }
-                        list.get(index - 1).mark();
-                        storage.saveTasks(list);
-                        ui.showTaskMarked(list.get(index - 1));
+                        Task task = taskList.markTask(index);
+                        storage.saveTasks(taskList);
+                        ui.showTaskMarked(task);
                         break;
                     }
 
                     case LIST: {
                         parser.requireNoArguments();
-                        ui.showTaskList(list);
+                        ui.showTaskList(taskList);
                         break;
                     }
 
@@ -53,18 +48,18 @@ public class Heisenberg {
                         String description = parser.getDescription();
                         LocalDateTime by = parser.getDeadlineDateTime();
                         Deadline curr = new Deadline(description, by);
-                        list.add(curr);
-                        storage.saveTasks(list);
-                        ui.showTaskAdded(curr, list);
+                        taskList.addTask(curr);
+                        storage.saveTasks(taskList);
+                        ui.showTaskAdded(curr, taskList);
                         break;
                     }
 
                     case TODO: {
                         String description = parser.getDescription();
                         ToDo curr = new ToDo(description);
-                        list.add(curr);
-                        storage.saveTasks(list);
-                        ui.showTaskAdded(curr, list);
+                        taskList.addTask(curr);
+                        storage.saveTasks(taskList);
+                        ui.showTaskAdded(curr, taskList);
                         break;
                     }
 
@@ -76,20 +71,16 @@ public class Heisenberg {
                             throw new InvalidFormatException("Event must start before it ends.");
                         }
                         Event curr = new Event(description, from, to);
-                        list.add(curr);
-                        storage.saveTasks(list);
-                        ui.showTaskAdded(curr, list);
+                        taskList.addTask(curr);
+                        storage.saveTasks(taskList);
+                        ui.showTaskAdded(curr, taskList);
                         break;
                     }
                     case DELETE: {
                         int index = parser.getTaskNumber();
-                        if (index > list.size() || index < 1) {
-                            throw new InvalidTaskNumberException("This task does not exist!");
-                        }
-                        Task toRemove = list.get(index - 1);
-                        list.remove(index - 1);
-                        storage.saveTasks(list);
-                        ui.showTaskDeleted(toRemove, list);
+                        Task toRemove = taskList.deleteTask(index);
+                        storage.saveTasks(taskList);
+                        ui.showTaskDeleted(toRemove, taskList);
                         break;
                     }
                 }

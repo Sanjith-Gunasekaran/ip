@@ -1,5 +1,3 @@
-import java.util.List;
-
 /** Handles all messages displayed to the user. */
 public class UI {
     public void showWelcome() {
@@ -26,25 +24,25 @@ public class UI {
              """);
     }
 
-    public void showTaskList(List<Task> list) {
+    public void showTaskList(TaskList taskList) {
         System.out.println("Here are the tasks in your list:");
-        for (int i = 0; i < list.size(); i++) {
-            System.out.printf("%d. %s%n", i + 1, list.get(i));
+        for (int taskNumber = 1; taskNumber <= taskList.size(); taskNumber++) {
+            System.out.printf("%d. %s%n", taskNumber, taskList.getTask(taskNumber));
         }
     }
 
-    public void showTaskAdded(Task task, List<Task> list) {
+    public void showTaskAdded(Task task, TaskList taskList) {
         System.out.printf("Got it. I've added this task: %n %s %n Now you have %d tasks in the list. %n",
-                task, list.size());
+                task, taskList.size());
     }
 
     public void showTaskMarked(Task task) {
         System.out.println("Nice! I've marked this task as done: \n" + task);
     }
 
-    public void showTaskDeleted(Task task, List<Task> list) {
+    public void showTaskDeleted(Task task, TaskList taskList) {
         System.out.printf("Noted. I've removed this task: %n %s %n Now you have %d tasks in the list. %n",
-                task, list.size());
+                task, taskList.size());
     }
 
     public void showError(String message) {

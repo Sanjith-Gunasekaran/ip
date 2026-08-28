@@ -5,7 +5,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
-import java.util.List;
 import java.util.Locale;
 
 /** Loads and saves tasks using the application's local storage file. */
@@ -17,7 +16,7 @@ public class Storage {
     private final Path file = Path.of("data", "storage.txt");
 
     /** Populates the task list with tasks previously saved on disk. */
-    public void loadTasks(List<Task> list) {
+    public void loadTasks(TaskList taskList) {
         if (!Files.exists(file)) {
             return;
         }
@@ -42,7 +41,7 @@ public class Storage {
                 if (parts[1].equals("1")) {
                     task.mark();
                 }
-                list.add(task);
+                taskList.addTask(task);
             }
         } catch (IOException e) {
             throw new StorageException("Unable to load saved tasks.", e);
@@ -50,13 +49,13 @@ public class Storage {
     }
 
     /** Replaces the storage file with the current contents of the task list. */
-    public void saveTasks(List<Task> list) {
+    public void saveTasks(TaskList taskList) {
         try {
             Files.createDirectories(file.getParent());
             try (var writer = Files.newBufferedWriter(file,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
-                for (Task task : list) {
+                for (Task task : taskList) {
                     String status = task.isDone() ? "1" : "0";
                     if (task instanceof Deadline deadline) {
                         writer.write("D|" + status + "|" + task.getDescription()
