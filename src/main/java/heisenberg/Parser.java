@@ -6,7 +6,6 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
 
-/** Interprets a user command and provides its parsed values. */
 public class Parser {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
@@ -16,11 +15,12 @@ public class Parser {
     private final CommandType command;
 
     public Parser(String input) {
-        if (input.trim().isEmpty()) {
+        String trimmedInput = input.trim();
+        if (trimmedInput.isEmpty()) {
             throw new InvalidCommandException("Unknown command was given.");
         }
 
-        parts = input.trim().split("\\s+");
+        parts = trimmedInput.split("\\s+");
         try {
             command = CommandType.valueOf(parts[0].toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -51,39 +51,39 @@ public class Parser {
     }
 
     public String getDescription() {
-        int end = switch (command) {
-        case DEADLINE -> findMarker("/by");
-        case EVENT -> findMarker("/from");
-        default -> parts.length;
+        int descriptionEndIndex = switch (command) {
+            case DEADLINE -> findMarker("/by");
+            case EVENT -> findMarker("/from");
+            default -> parts.length;
         };
 
-        if (end == -1) {
-            end = parts.length;
+        if (descriptionEndIndex == -1) {
+            descriptionEndIndex = parts.length;
         }
-        return joinParts(1, end);
+        return joinParts(1, descriptionEndIndex);
     }
 
     public LocalDateTime getDeadlineDateTime() {
-        int byIndex = requireMarker("/by");
-        return parseDateTime(joinParts(byIndex + 1, parts.length));
+        int deadlineMarkerIndex = requireMarker("/by");
+        return parseDateTime(joinParts(deadlineMarkerIndex + 1, parts.length));
     }
 
     public LocalDateTime getEventFromDateTime() {
-        int fromIndex = requireMarker("/from");
-        int toIndex = requireMarker("/to");
-        if (toIndex < fromIndex) {
+        int startMarkerIndex = requireMarker("/from");
+        int endMarkerIndex = requireMarker("/to");
+        if (endMarkerIndex < startMarkerIndex) {
             throw new InvalidFormatException("Task is formatted incorrectly.");
         }
-        return parseDateTime(joinParts(fromIndex + 1, toIndex));
+        return parseDateTime(joinParts(startMarkerIndex + 1, endMarkerIndex));
     }
 
     public LocalDateTime getEventToDateTime() {
-        int fromIndex = requireMarker("/from");
-        int toIndex = requireMarker("/to");
-        if (toIndex < fromIndex) {
+        int startMarkerIndex = requireMarker("/from");
+        int endMarkerIndex = requireMarker("/to");
+        if (endMarkerIndex < startMarkerIndex) {
             throw new InvalidFormatException("Task is formatted incorrectly.");
         }
-        return parseDateTime(joinParts(toIndex + 1, parts.length));
+        return parseDateTime(joinParts(endMarkerIndex + 1, parts.length));
     }
 
     private int requireMarker(String marker) {
@@ -103,9 +103,9 @@ public class Parser {
         return -1;
     }
 
-    private String joinParts(int start, int end) {
+    private String joinParts(int startIndex, int endIndex) {
         StringBuilder value = new StringBuilder();
-        for (int i = start; i < end; i++) {
+        for (int i = startIndex; i < endIndex; i++) {
             value.append(parts[i]).append(" ");
         }
 

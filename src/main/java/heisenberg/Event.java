@@ -5,27 +5,27 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 public class Event extends Task {
-    private final LocalDateTime from;
-    private final LocalDateTime to;
+    private final LocalDateTime startDateTime;
+    private final LocalDateTime endDateTime;
 
-    public Event(String description, LocalDateTime from, LocalDateTime to) {
+    public Event(String description, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
     }
 
-    public LocalDateTime getFrom() {
-        return from;
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
     }
 
-    public LocalDateTime getTo() {
-        return to;
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
     }
 
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm", Locale.ENGLISH);
-        return "[E]" + super.toString() + " (from: " + from.format(formatter)
-                + " to: " + to.format(formatter) + ")";
+        return "[E]" + super.toString() + " (from: " + startDateTime.format(formatter)
+                + " to: " + endDateTime.format(formatter) + ")";
     }
 }
