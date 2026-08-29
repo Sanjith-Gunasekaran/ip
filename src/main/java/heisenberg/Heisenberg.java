@@ -85,6 +85,13 @@ public class Heisenberg {
                         ui.showTaskDeleted(removedTask, taskList);
                         break;
                     }
+
+                    case FIND: {
+                        String keyword = parser.getKeyword();
+                        TaskList matches = taskList.findTasks(keyword);
+                        ui.showMatchingTasks(matches);
+                        break;
+                    }
                 }
             } catch (InvalidCommandException
                     | InvalidFormatException

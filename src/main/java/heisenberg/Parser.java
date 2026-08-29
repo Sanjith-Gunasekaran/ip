@@ -82,6 +82,13 @@ public class Parser {
         return joinParts(1, descriptionEndIndex);
     }
 
+    public String getKeyword() {
+        if (parts.length != 2) {
+            throw new InvalidFormatException("Command is formatted incorrectly.");
+        }
+        return parts[1];
+    }
+
     public LocalDateTime getDeadlineDateTime() {
         int deadlineMarkerIndex = requireMarker("/by");
         return parseDateTime(joinParts(deadlineMarkerIndex + 1, parts.length));
