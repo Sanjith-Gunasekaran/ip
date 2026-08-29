@@ -1,5 +1,6 @@
 package heisenberg;
 
+/** Represents a task with a description and a completion status. */
 public class Task {
     protected String description;
     protected boolean isDone;

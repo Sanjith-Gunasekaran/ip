@@ -4,6 +4,7 @@ import java.util.Scanner;
 import java.time.LocalDateTime;
 
 
+/** Entry point of the chatbot that reads and executes user commands until the user exits. */
 public class Heisenberg {
     public static void main(String[] args) {
         UI ui = new UI();

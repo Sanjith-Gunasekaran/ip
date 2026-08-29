@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+/** Represents a task that must be completed by a specific date and time. */
 public class Deadline extends Task {
     private final LocalDateTime by;
 
