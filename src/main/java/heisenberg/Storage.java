@@ -1,5 +1,6 @@
 package heisenberg;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,38 +10,36 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
 
-/** Loads and saves tasks using the application's local storage file. */
 public class Storage {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
             .withResolverStyle(ResolverStyle.STRICT);
 
-    private final Path file = Path.of("data", "storage.txt");
+    private static final Path FILE_PATH = Path.of("data", "storage.txt");
 
-    /** Populates the task list with tasks previously saved on disk. */
     public void loadTasks(TaskList taskList) {
-        if (!Files.exists(file)) {
+        if (!Files.exists(FILE_PATH)) {
             return;
         }
 
         try {
-            for (String line : Files.readAllLines(file)) {
+            for (String line : Files.readAllLines(FILE_PATH)) {
                 if (line.isBlank()) {
                     continue;
                 }
 
-                String[] parts = line.split("\\|", -1);
-                Task task = switch (parts[0]) {
-                case "T" -> new ToDo(parts[2]);
-                case "D" -> new Deadline(parts[2],
-                        LocalDateTime.parse(parts[3], DATE_TIME_FORMAT));
-                case "E" -> new Event(parts[2],
-                        LocalDateTime.parse(parts[3], DATE_TIME_FORMAT),
-                        LocalDateTime.parse(parts[4], DATE_TIME_FORMAT));
-                default -> throw new IllegalArgumentException("Unknown stored task type.");
+                String[] taskParts = line.split("\\|", -1);
+                Task task = switch (taskParts[0]) {
+                    case "T" -> new ToDo(taskParts[2]);
+                    case "D" -> new Deadline(taskParts[2],
+                            LocalDateTime.parse(taskParts[3], DATE_TIME_FORMAT));
+                    case "E" -> new Event(taskParts[2],
+                            LocalDateTime.parse(taskParts[3], DATE_TIME_FORMAT),
+                            LocalDateTime.parse(taskParts[4], DATE_TIME_FORMAT));
+                    default -> throw new IllegalArgumentException("Unknown stored task type.");
                 };
 
-                if (parts[1].equals("1")) {
+                if (taskParts[1].equals("1")) {
                     task.mark();
                 }
                 taskList.addTask(task);
@@ -50,22 +49,21 @@ public class Storage {
         }
     }
 
-    /** Replaces the storage file with the current contents of the task list. */
     public void saveTasks(TaskList taskList) {
         try {
-            Files.createDirectories(file.getParent());
-            try (var writer = Files.newBufferedWriter(file,
+            Files.createDirectories(FILE_PATH.getParent());
+            try (BufferedWriter writer = Files.newBufferedWriter(FILE_PATH,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING)) {
                 for (Task task : taskList) {
                     String status = task.isDone() ? "1" : "0";
                     if (task instanceof Deadline deadline) {
                         writer.write("D|" + status + "|" + task.getDescription()
-                                + "|" + deadline.getBy().format(DATE_TIME_FORMAT));
+                                + "|" + deadline.getDeadlineDateTime().format(DATE_TIME_FORMAT));
                     } else if (task instanceof Event event) {
                         writer.write("E|" + status + "|" + task.getDescription()
-                                + "|" + event.getFrom().format(DATE_TIME_FORMAT)
-                                + "|" + event.getTo().format(DATE_TIME_FORMAT));
+                                + "|" + event.getStartDateTime().format(DATE_TIME_FORMAT)
+                                + "|" + event.getEndDateTime().format(DATE_TIME_FORMAT));
                     } else {
                         writer.write("T|" + status + "|" + task.getDescription());
                     }

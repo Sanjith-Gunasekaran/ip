@@ -2,8 +2,8 @@ package heisenberg;
 
 /** Represents a task with a description and a completion status. */
 public class Task {
-    protected String description;
-    protected boolean isDone;
+    private String description;
+    private boolean isDone;
 
     public Task(String description) {
         this.description = description;
@@ -11,12 +11,13 @@ public class Task {
     }
 
     public String getStatusIcon() {
-        return (isDone ? "X" : " "); // mark done task with X
+        return isDone ? "X" : " ";
     }
 
     public void mark() {
         this.isDone = true;
     }
+
     public void unmark() {
         this.isDone = false;
     }

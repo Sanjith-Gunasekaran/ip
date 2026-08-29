@@ -1,13 +1,12 @@
 package heisenberg;
 
-import java.util.Scanner;
 import java.time.LocalDateTime;
-
+import java.util.Scanner;
 
 /** Entry point of the chatbot that reads and executes user commands until the user exits. */
 public class Heisenberg {
     public static void main(String[] args) {
-        UI ui = new UI();
+        Ui ui = new Ui();
         ui.showWelcome();
         TaskList taskList = new TaskList();
         Storage storage = new Storage();
@@ -18,17 +17,16 @@ public class Heisenberg {
         }
 
         Scanner scanner = new Scanner(System.in);
-        String input;
         boolean isRunning = true;
-        while(isRunning) {
-            input = scanner.nextLine();
+        while (isRunning) {
+            String input = scanner.nextLine();
             try {
                 Parser parser = new Parser(input);
 
                 switch (parser.getCommand()) {
                     case MARK: {
-                        int index = parser.getTaskNumber();
-                        Task task = taskList.markTask(index);
+                        int taskNumber = parser.getTaskNumber();
+                        Task task = taskList.markTask(taskNumber);
                         storage.saveTasks(taskList);
                         ui.showTaskMarked(task);
                         break;
@@ -49,45 +47,46 @@ public class Heisenberg {
 
                     case DEADLINE: {
                         String description = parser.getDescription();
-                        LocalDateTime by = parser.getDeadlineDateTime();
-                        Deadline curr = new Deadline(description, by);
-                        taskList.addTask(curr);
+                        LocalDateTime deadlineDateTime = parser.getDeadlineDateTime();
+                        Deadline deadline = new Deadline(description, deadlineDateTime);
+                        taskList.addTask(deadline);
                         storage.saveTasks(taskList);
-                        ui.showTaskAdded(curr, taskList);
+                        ui.showTaskAdded(deadline, taskList);
                         break;
                     }
 
                     case TODO: {
                         String description = parser.getDescription();
-                        ToDo curr = new ToDo(description);
-                        taskList.addTask(curr);
+                        ToDo todo = new ToDo(description);
+                        taskList.addTask(todo);
                         storage.saveTasks(taskList);
-                        ui.showTaskAdded(curr, taskList);
+                        ui.showTaskAdded(todo, taskList);
                         break;
                     }
 
                     case EVENT: {
                         String description = parser.getDescription();
-                        LocalDateTime from = parser.getEventFromDateTime();
-                        LocalDateTime to = parser.getEventToDateTime();
-                        if (!from.isBefore(to)) {
+                        LocalDateTime startDateTime = parser.getEventFromDateTime();
+                        LocalDateTime endDateTime = parser.getEventToDateTime();
+                        if (!startDateTime.isBefore(endDateTime)) {
                             throw new InvalidFormatException("Event must start before it ends.");
                         }
-                        Event curr = new Event(description, from, to);
-                        taskList.addTask(curr);
+                        Event event = new Event(description, startDateTime, endDateTime);
+                        taskList.addTask(event);
                         storage.saveTasks(taskList);
-                        ui.showTaskAdded(curr, taskList);
+                        ui.showTaskAdded(event, taskList);
                         break;
                     }
+
                     case DELETE: {
-                        int index = parser.getTaskNumber();
-                        Task toRemove = taskList.deleteTask(index);
+                        int taskNumber = parser.getTaskNumber();
+                        Task removedTask = taskList.deleteTask(taskNumber);
                         storage.saveTasks(taskList);
-                        ui.showTaskDeleted(toRemove, taskList);
+                        ui.showTaskDeleted(removedTask, taskList);
                         break;
                     }
                 }
-            } catch(InvalidCommandException
+            } catch (InvalidCommandException
                     | InvalidFormatException
                     | InvalidTaskNumberException
                     | StorageException e) {

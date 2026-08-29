@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-/** Stores tasks and provides operations that use the displayed one-based task numbers. */
 public class TaskList implements Iterable<Task> {
     private final List<Task> tasks = new ArrayList<>();
 

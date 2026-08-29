@@ -1,7 +1,6 @@
 package heisenberg;
 
-/** Handles all messages displayed to the user. */
-public class UI {
+public class Ui {
     public void showWelcome() {
         System.out.print("""
                 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
