@@ -15,6 +15,12 @@ public class Parser {
     private final String[] parts;
     private final CommandType command;
 
+    /**
+     * Creates a parser for the given raw user input.
+     *
+     * @param input Raw line entered by the user.
+     * @throws InvalidCommandException If the input is empty or does not start with a known command.
+     */
     public Parser(String input) {
         if (input.trim().isEmpty()) {
             throw new InvalidCommandException("Unknown command was given.");
@@ -38,6 +44,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Returns the task number given as the only argument of the command.
+     *
+     * @return One-based task number entered by the user.
+     * @throws InvalidFormatException If the argument is missing, extra, or not an integer.
+     */
     public int getTaskNumber() {
         if (parts.length != 2) {
             throw new InvalidFormatException("Command is formatted incorrectly.");
@@ -50,6 +62,13 @@ public class Parser {
         }
     }
 
+    /**
+     * Returns the task description, which spans from after the command word
+     * up to the first date marker if the command expects one.
+     *
+     * @return Description text of the task.
+     * @throws InvalidFormatException If the description is empty.
+     */
     public String getDescription() {
         int end = switch (command) {
         case DEADLINE -> findMarker("/by");

@@ -17,10 +17,24 @@ public class TaskList implements Iterable<Task> {
         return tasks.get(toIndex(taskNumber));
     }
 
+    /**
+     * Removes the task with the given task number from the list.
+     *
+     * @param taskNumber One-based task number as displayed to the user.
+     * @return Task that was removed.
+     * @throws InvalidTaskNumberException If no task has the given task number.
+     */
     public Task deleteTask(int taskNumber) {
         return tasks.remove(toIndex(taskNumber));
     }
 
+    /**
+     * Marks the task with the given task number as done.
+     *
+     * @param taskNumber One-based task number as displayed to the user.
+     * @return Task that was marked.
+     * @throws InvalidTaskNumberException If no task has the given task number.
+     */
     public Task markTask(int taskNumber) {
         Task task = getTask(taskNumber);
         task.mark();
