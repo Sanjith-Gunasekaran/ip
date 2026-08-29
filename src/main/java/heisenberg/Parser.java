@@ -50,6 +50,13 @@ public class Parser {
         }
     }
 
+    public String getKeyword() {
+        if (parts.length != 2) {
+            throw new InvalidFormatException("Command is formatted incorrectly.");
+        }
+        return parts[1];
+    }
+
     public String getDescription() {
         int end = switch (command) {
         case DEADLINE -> findMarker("/by");
