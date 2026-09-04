@@ -3,102 +3,142 @@ package heisenberg;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
-/** Entry point of the chatbot that reads and executes user commands until the user exits. */
+/** Executes Heisenberg commands for both the text and graphical interfaces. */
 public class Heisenberg {
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        ui.showWelcome();
-        TaskList taskList = new TaskList();
-        Storage storage = new Storage();
+    private final Ui ui;
+    private final TaskList taskList;
+    private final Storage storage;
+    private String startupError;
+    private boolean isRunning;
+
+    /** Creates a chatbot and loads previously saved tasks. */
+    public Heisenberg() {
+        ui = new Ui();
+        taskList = new TaskList();
+        storage = new Storage();
+        isRunning = true;
+
         try {
             storage.loadTasks(taskList);
         } catch (StorageException e) {
-            ui.showError(e.getMessage());
+            startupError = e.getMessage();
+        }
+    }
+
+    /**
+     * Runs the retained text interface until the user enters {@code bye} or closes the input stream.
+     *
+     * @param args Command-line arguments, which are not used.
+     */
+    public static void main(String[] args) {
+        Heisenberg heisenberg = new Heisenberg();
+        heisenberg.ui.showWelcome();
+        if (heisenberg.startupError != null) {
+            System.out.println(heisenberg.startupError);
         }
 
-        Scanner scanner = new Scanner(System.in);
-        boolean isRunning = true;
-        while (isRunning) {
-            String input = scanner.nextLine();
-            try {
-                Parser parser = new Parser(input);
-
-                switch (parser.getCommand()) {
-                    case MARK: {
-                        int taskNumber = parser.getTaskNumber();
-                        Task task = taskList.markTask(taskNumber);
-                        storage.saveTasks(taskList);
-                        ui.showTaskMarked(task);
-                        break;
-                    }
-
-                    case LIST: {
-                        parser.requireNoArguments();
-                        ui.showTaskList(taskList);
-                        break;
-                    }
-
-                    case BYE: {
-                        parser.requireNoArguments();
-                        ui.showGoodbye();
-                        isRunning = false;
-                        break;
-                    }
-
-                    case DEADLINE: {
-                        String description = parser.getDescription();
-                        LocalDateTime deadlineDateTime = parser.getDeadlineDateTime();
-                        Deadline deadline = new Deadline(description, deadlineDateTime);
-                        taskList.addTask(deadline);
-                        storage.saveTasks(taskList);
-                        ui.showTaskAdded(deadline, taskList);
-                        break;
-                    }
-
-                    case TODO: {
-                        String description = parser.getDescription();
-                        ToDo todo = new ToDo(description);
-                        taskList.addTask(todo);
-                        storage.saveTasks(taskList);
-                        ui.showTaskAdded(todo, taskList);
-                        break;
-                    }
-
-                    case EVENT: {
-                        String description = parser.getDescription();
-                        LocalDateTime startDateTime = parser.getEventFromDateTime();
-                        LocalDateTime endDateTime = parser.getEventToDateTime();
-                        if (!startDateTime.isBefore(endDateTime)) {
-                            throw new InvalidFormatException("Event must start before it ends.");
-                        }
-                        Event event = new Event(description, startDateTime, endDateTime);
-                        taskList.addTask(event);
-                        storage.saveTasks(taskList);
-                        ui.showTaskAdded(event, taskList);
-                        break;
-                    }
-
-                    case DELETE: {
-                        int taskNumber = parser.getTaskNumber();
-                        Task removedTask = taskList.deleteTask(taskNumber);
-                        storage.saveTasks(taskList);
-                        ui.showTaskDeleted(removedTask, taskList);
-                        break;
-                    }
-
-                    case FIND: {
-                        String keyword = parser.getKeyword();
-                        TaskList matches = taskList.findTasks(keyword);
-                        ui.showMatchingTasks(matches);
-                        break;
-                    }
-                }
-            } catch (InvalidCommandException
-                    | InvalidFormatException
-                    | InvalidTaskNumberException
-                    | StorageException e) {
-                ui.showError(e.getMessage());
+        try (Scanner scanner = new Scanner(System.in)) {
+            while (heisenberg.isRunning() && scanner.hasNextLine()) {
+                System.out.println(heisenberg.getResponse(scanner.nextLine()));
             }
         }
+    }
+
+    /** Returns the welcome message displayed when the GUI opens. */
+    public String getWelcomeMessage() {
+        if (startupError == null) {
+            return ui.getWelcomeMessage();
+        }
+        return ui.getWelcomeMessage() + System.lineSeparator() + startupError;
+    }
+
+    /**
+     * Executes one user command and returns the message that should be displayed.
+     *
+     * @param input Raw command entered by the user.
+     * @return Response for the command, including validation and storage errors.
+     */
+    public String getResponse(String input) {
+        try {
+            Parser parser = new Parser(input);
+
+            return switch (parser.getCommand()) {
+            case MARK -> markTask(parser);
+            case LIST -> listTasks(parser);
+            case BYE -> exit(parser);
+            case DEADLINE -> addDeadline(parser);
+            case TODO -> addTodo(parser);
+            case EVENT -> addEvent(parser);
+            case DELETE -> deleteTask(parser);
+            case FIND -> findTasks(parser);
+            };
+        } catch (InvalidCommandException
+                | InvalidFormatException
+                | InvalidTaskNumberException
+                | StorageException e) {
+            return e.getMessage();
+        }
+    }
+
+    /** Returns whether the chatbot should continue accepting commands. */
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    private String markTask(Parser parser) {
+        Task task = taskList.markTask(parser.getTaskNumber());
+        storage.saveTasks(taskList);
+        return ui.getTaskMarkedMessage(task);
+    }
+
+    private String listTasks(Parser parser) {
+        parser.requireNoArguments();
+        return ui.getTaskListMessage(taskList);
+    }
+
+    private String exit(Parser parser) {
+        parser.requireNoArguments();
+        isRunning = false;
+        return ui.getGoodbyeMessage();
+    }
+
+    private String addDeadline(Parser parser) {
+        String description = parser.getDescription();
+        LocalDateTime deadlineDateTime = parser.getDeadlineDateTime();
+        Deadline deadline = new Deadline(description, deadlineDateTime);
+        taskList.addTask(deadline);
+        storage.saveTasks(taskList);
+        return ui.getTaskAddedMessage(deadline, taskList);
+    }
+
+    private String addTodo(Parser parser) {
+        ToDo todo = new ToDo(parser.getDescription());
+        taskList.addTask(todo);
+        storage.saveTasks(taskList);
+        return ui.getTaskAddedMessage(todo, taskList);
+    }
+
+    private String addEvent(Parser parser) {
+        String description = parser.getDescription();
+        LocalDateTime startDateTime = parser.getEventFromDateTime();
+        LocalDateTime endDateTime = parser.getEventToDateTime();
+        if (!startDateTime.isBefore(endDateTime)) {
+            throw new InvalidFormatException("Event must start before it ends.");
+        }
+        Event event = new Event(description, startDateTime, endDateTime);
+        taskList.addTask(event);
+        storage.saveTasks(taskList);
+        return ui.getTaskAddedMessage(event, taskList);
+    }
+
+    private String deleteTask(Parser parser) {
+        Task removedTask = taskList.deleteTask(parser.getTaskNumber());
+        storage.saveTasks(taskList);
+        return ui.getTaskDeletedMessage(removedTask, taskList);
+    }
+
+    private String findTasks(Parser parser) {
+        TaskList matches = taskList.findTasks(parser.getKeyword());
+        return ui.getMatchingTasksMessage(matches);
     }
 }
