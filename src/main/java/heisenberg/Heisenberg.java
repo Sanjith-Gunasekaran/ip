@@ -34,12 +34,12 @@ public class Heisenberg {
         Heisenberg heisenberg = new Heisenberg();
         heisenberg.ui.showWelcome();
         if (heisenberg.startupError != null) {
-            System.out.println(heisenberg.startupError);
+            heisenberg.ui.showMessage(heisenberg.startupError);
         }
 
         try (Scanner scanner = new Scanner(System.in)) {
             while (heisenberg.isRunning() && scanner.hasNextLine()) {
-                System.out.println(heisenberg.getResponse(scanner.nextLine()));
+                heisenberg.ui.showMessage(heisenberg.getResponse(scanner.nextLine()));
             }
         }
     }

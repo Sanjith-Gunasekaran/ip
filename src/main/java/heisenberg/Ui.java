@@ -26,32 +26,8 @@ public class Ui {
              """);
     }
 
-    public void showTaskList(TaskList taskList) {
-        System.out.println(getTaskListMessage(taskList));
-    }
-
-    public void showMatchingTasks(TaskList matches) {
-        System.out.println(getMatchingTasksMessage(matches));
-    }
-
-    public void showTaskAdded(Task task, TaskList taskList) {
-        System.out.println(getTaskAddedMessage(task, taskList));
-    }
-
-    public void showTaskMarked(Task task) {
-        System.out.println(getTaskMarkedMessage(task));
-    }
-
-    public void showTaskDeleted(Task task, TaskList taskList) {
-        System.out.println(getTaskDeletedMessage(task, taskList));
-    }
-
-    public void showError(String message) {
+    public void showMessage(String message) {
         System.out.println(message);
-    }
-
-    public void showGoodbye() {
-        System.out.print(getGoodbyeMessage());
     }
 
     public String getWelcomeMessage() {
