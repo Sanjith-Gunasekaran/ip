@@ -67,6 +67,10 @@ public class Ui {
                 task, taskList.size());
     }
 
+    public String getTasksSortedMessage(TaskList taskList) {
+        return "I've sorted your tasks by deadline.\n" + getTaskListMessage(taskList);
+    }
+
     public String getGoodbyeMessage() {
         return "Goodbye!";
     }

@@ -71,6 +71,7 @@ public class Heisenberg {
             case EVENT -> addEvent(parser);
             case DELETE -> deleteTask(parser);
             case FIND -> findTasks(parser);
+            case SORT -> sortTasks(parser);
             };
         } catch (InvalidCommandException
                 | InvalidFormatException
@@ -140,5 +141,12 @@ public class Heisenberg {
     private String findTasks(Parser parser) {
         TaskList matches = taskList.findTasks(parser.getKeyword());
         return ui.getMatchingTasksMessage(matches);
+    }
+
+    private String sortTasks(Parser parser) {
+        parser.requireNoArguments();
+        taskList.sortByDeadline();
+        storage.saveTasks(taskList);
+        return ui.getTasksSortedMessage(taskList);
     }
 }

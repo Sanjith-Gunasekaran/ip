@@ -16,6 +16,7 @@ public class ParserTest {
         assertEquals(CommandType.LIST, new Parser("list").getCommand());
         assertEquals(CommandType.MARK, new Parser("mark 1").getCommand());
         assertEquals(CommandType.DELETE, new Parser("delete 1").getCommand());
+        assertEquals(CommandType.SORT, new Parser("sort").getCommand());
         assertEquals(CommandType.BYE, new Parser("bye").getCommand());
     }
 

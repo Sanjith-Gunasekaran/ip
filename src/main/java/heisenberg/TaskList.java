@@ -58,6 +58,11 @@ public class TaskList implements Iterable<Task> {
         return tasks.isEmpty();
     }
 
+    /** Sorts deadlines from earliest to latest while keeping other task types in their original order. */
+    public void sortByDeadline() {
+        tasks.sort(TaskList::compareByDeadline);
+    }
+
     @Override
     public Iterator<Task> iterator() {
         return Collections.unmodifiableList(tasks).iterator();
@@ -68,5 +73,19 @@ public class TaskList implements Iterable<Task> {
             throw new InvalidTaskNumberException("This task does not exist!");
         }
         return taskNumber - 1;
+    }
+
+    private static int compareByDeadline(Task firstTask, Task secondTask) {
+        if (firstTask instanceof Deadline firstDeadline) {
+            if (secondTask instanceof Deadline secondDeadline) {
+                return firstDeadline.getDeadlineDateTime()
+                        .compareTo(secondDeadline.getDeadlineDateTime());
+            }
+            return -1;
+        }
+        if (secondTask instanceof Deadline) {
+            return 1;
+        }
+        return 0;
     }
 }
