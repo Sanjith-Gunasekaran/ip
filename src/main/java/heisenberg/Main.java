@@ -1,4 +1,4 @@
-    package heisenberg;
+package heisenberg;
 
 import java.io.IOException;
 import java.net.URL;

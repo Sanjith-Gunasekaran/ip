@@ -65,15 +65,15 @@ public class Heisenberg {
             Parser parser = new Parser(input);
 
             return switch (parser.getCommand()) {
-            case MARK -> markTask(parser);
-            case LIST -> listTasks(parser);
-            case BYE -> exit(parser);
-            case DEADLINE -> addDeadline(parser);
-            case TODO -> addTodo(parser);
-            case EVENT -> addEvent(parser);
-            case DELETE -> deleteTask(parser);
-            case FIND -> findTasks(parser);
-            case SORT -> sortTasks(parser);
+                case MARK -> markTask(parser);
+                case LIST -> listTasks(parser);
+                case BYE -> exit(parser);
+                case DEADLINE -> addDeadline(parser);
+                case TODO -> addTodo(parser);
+                case EVENT -> addEvent(parser);
+                case DELETE -> deleteTask(parser);
+                case FIND -> findTasks(parser);
+                case SORT -> sortTasks(parser);
             };
         } catch (InvalidCommandException
                 | InvalidFormatException

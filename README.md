@@ -4,11 +4,14 @@ Heisenberg is a JavaFX desktop chatbot that keeps your tasks under control. Crea
 
 ## Run the app
 
-Install Java 25, then run this command from the project folder:
+Install Java 25; on macOS, follow the [Java 25 + JavaFX setup guide](https://se-education.org/guides/tutorials/javaInstallationMac.html).
+Download `heisenberg.jar` from the [latest release](https://github.com/Sanjith-Gunasekaran/ip/releases/latest), put it in a folder, and open a terminal there:
 
 ```sh
-./gradlew run
+java -jar heisenberg.jar
 ```
+
+To run from source, use `./gradlew run` from the project folder (`gradlew.bat run` on Windows).
 
 ## User Guide
 

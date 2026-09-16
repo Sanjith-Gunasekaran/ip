@@ -6,9 +6,10 @@
 
 ## Getting started
 
-1. Install Java 25.
-2. From the project folder, run `./gradlew run`.
-3. Enter a command in the text box and press <kbd>Enter</kbd> or click **Send**.
+1. Install Java 25. On macOS, follow the [Java 25 + JavaFX setup guide](https://se-education.org/guides/tutorials/javaInstallationMac.html).
+2. Download `heisenberg.jar` from the [latest release](https://github.com/Sanjith-Gunasekaran/ip/releases/latest) and put it in a folder.
+3. Open a terminal in that folder and run `java -jar heisenberg.jar`.
+4. Enter a command in the text box and press <kbd>Enter</kbd> or click **Send**.
 
 Commands are case-insensitive. Task numbers are the numbers shown by `list`.
 

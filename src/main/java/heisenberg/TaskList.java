@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Maintains an ordered task collection with one-based task numbers.
+ */
 public class TaskList implements Iterable<Task> {
     private final List<Task> tasks = new ArrayList<>();
 
@@ -40,6 +43,12 @@ public class TaskList implements Iterable<Task> {
         return task;
     }
 
+    /**
+     * Finds tasks whose descriptions contain the case-sensitive keyword.
+     *
+     * @param keyword Text to match within each description.
+     * @return Matching tasks in their original order.
+     */
     public TaskList findTasks(String keyword) {
         TaskList matches = new TaskList();
         for (Task task : tasks) {

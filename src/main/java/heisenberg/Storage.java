@@ -10,6 +10,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
 
+/**
+ * Loads and saves tasks in the local data file.
+ */
 public class Storage {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
@@ -17,6 +20,12 @@ public class Storage {
 
     private static final Path FILE_PATH = Path.of("data", "storage.txt");
 
+    /**
+     * Appends saved tasks to the given list if the data file exists.
+     *
+     * @param taskList List receiving the saved tasks.
+     * @throws StorageException If the data file cannot be read.
+     */
     public void loadTasks(TaskList taskList) {
         if (!Files.exists(FILE_PATH)) {
             return;
@@ -49,6 +58,12 @@ public class Storage {
         }
     }
 
+    /**
+     * Replaces the data file with the current tasks and completion statuses.
+     *
+     * @param taskList Tasks to save in their current order.
+     * @throws StorageException If the data directory or file cannot be written.
+     */
     public void saveTasks(TaskList taskList) {
         try {
             Files.createDirectories(FILE_PATH.getParent());

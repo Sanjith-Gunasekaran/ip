@@ -6,6 +6,9 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
 
+/**
+ * Parses a user command and validates its arguments.
+ */
 public class Parser {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter
             .ofPattern("uuuu-MM-dd HHmm", Locale.ENGLISH)
@@ -38,6 +41,11 @@ public class Parser {
         return command;
     }
 
+    /**
+     * Checks that the command has no arguments.
+     *
+     * @throws InvalidFormatException If any arguments follow the command word.
+     */
     public void requireNoArguments() {
         if (parts.length != 1) {
             throw new InvalidFormatException("Command is formatted incorrectly.");
@@ -89,6 +97,12 @@ public class Parser {
         return parts[1];
     }
 
+    /**
+     * Parses the deadline after the {@code /by} marker.
+     *
+     * @return Deadline date and time entered by the user.
+     * @throws InvalidFormatException If the marker is missing or the date and time are invalid.
+     */
     public LocalDateTime getDeadlineDateTime() {
         int deadlineMarkerIndex = requireMarker("/by");
         return parseDateTime(joinParts(deadlineMarkerIndex + 1, parts.length));
