@@ -52,10 +52,13 @@ public class MainWindow extends AnchorPane {
     private void handleUserInput() {
         String input = userInput.getText();
         String response = heisenberg.getResponse(input);
+        DialogBox responseDialog = heisenberg.wasLastResponseAnError()
+                ? DialogBox.getErrorDialog(response, heisenbergImage)
+                : DialogBox.getHeisenbergDialog(response, heisenbergImage);
 
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getHeisenbergDialog(response, heisenbergImage));
+                responseDialog);
         userInput.clear();
 
         if (!heisenberg.isRunning()) {

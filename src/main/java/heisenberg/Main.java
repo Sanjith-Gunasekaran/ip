@@ -27,8 +27,14 @@ public class Main extends Application {
         controller.setHeisenberg(heisenberg);
 
         stage.setTitle("Heisenberg");
-        stage.setResizable(false);
-        stage.setScene(new Scene(mainWindow));
+        stage.setMinWidth(460);
+        stage.setMinHeight(480);
+        stage.setResizable(true);
+        Scene scene = new Scene(mainWindow);
+        scene.getStylesheets().add(Objects.requireNonNull(
+                Main.class.getResource("/view/main.css"),
+                "Missing stylesheet resource: /view/main.css").toExternalForm());
+        stage.setScene(scene);
         stage.show();
     }
 }

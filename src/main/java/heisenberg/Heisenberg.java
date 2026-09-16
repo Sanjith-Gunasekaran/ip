@@ -10,6 +10,7 @@ public class Heisenberg {
     private final Storage storage;
     private String startupError;
     private boolean isRunning;
+    private boolean lastResponseWasError;
 
     /** Creates a chatbot and loads previously saved tasks. */
     public Heisenberg() {
@@ -60,6 +61,7 @@ public class Heisenberg {
      */
     public String getResponse(String input) {
         try {
+            lastResponseWasError = false;
             Parser parser = new Parser(input);
 
             return switch (parser.getCommand()) {
@@ -77,8 +79,14 @@ public class Heisenberg {
                 | InvalidFormatException
                 | InvalidTaskNumberException
                 | StorageException e) {
+            lastResponseWasError = true;
             return e.getMessage();
         }
+    }
+
+    /** Returns whether the most recent response reports an invalid command or storage error. */
+    public boolean wasLastResponseAnError() {
+        return lastResponseWasError;
     }
 
     /** Returns whether the chatbot should continue accepting commands. */

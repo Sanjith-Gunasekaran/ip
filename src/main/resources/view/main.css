@@ -1,0 +1,79 @@
+.main-window {
+    -fx-background-image: url("../images/desert-background.png");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+}
+
+.dialog-scroll,
+.dialog-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.dialog-scroll > .viewport > .content {
+    -fx-background-color: rgba(252, 246, 233, 0.72);
+}
+
+.dialog-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.dialog-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(94, 63, 43, 0.42);
+    -fx-background-radius: 6;
+}
+
+.message-bubble {
+    -fx-font-family: "System";
+    -fx-font-size: 13px;
+    -fx-line-spacing: 2px;
+    -fx-padding: 9 11 9 11;
+    -fx-background-radius: 12;
+}
+
+.user-dialog .message-bubble {
+    -fx-text-fill: white;
+    -fx-background-color: #2f5d50;
+    -fx-background-radius: 12 2 12 12;
+}
+
+.heisenberg-dialog .message-bubble {
+    -fx-text-fill: #2e2924;
+    -fx-background-color: rgba(255, 253, 248, 0.94);
+    -fx-background-radius: 2 12 12 12;
+    -fx-effect: dropshadow(gaussian, rgba(49, 37, 26, 0.13), 5, 0.1, 0, 1);
+}
+
+.error-dialog .message-bubble {
+    -fx-text-fill: #721c24;
+    -fx-background-color: #ffe6e5;
+    -fx-background-radius: 2 12 12 12;
+    -fx-border-color: #d77770;
+    -fx-border-radius: 2 12 12 12;
+    -fx-border-width: 1;
+}
+
+.user-input {
+    -fx-background-color: rgba(255, 253, 248, 0.97);
+    -fx-background-radius: 0;
+    -fx-border-color: rgba(100, 70, 45, 0.35);
+    -fx-border-width: 1 0 0 0;
+    -fx-font-size: 13px;
+    -fx-padding: 0 14 0 14;
+}
+
+.user-input:focused {
+    -fx-border-color: #a8663a;
+    -fx-border-width: 2 0 0 0;
+}
+
+.send-button {
+    -fx-background-color: #a8663a;
+    -fx-background-radius: 0;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.send-button:hover {
+    -fx-background-color: #8d512e;
+}

@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 
 /** Represents an avatar and message loaded from {@code DialogBox.fxml}. */
 public class DialogBox extends HBox {
@@ -39,19 +40,29 @@ public class DialogBox extends HBox {
 
         dialog.setText(text);
         displayPicture.setImage(image);
+        displayPicture.setClip(new Circle(17, 17, 17));
     }
 
     /** Creates a dialog aligned for a message entered by the user. */
     public static DialogBox getUserDialog(String text, Image image) {
-        return new DialogBox(text, image);
+        DialogBox dialogBox = new DialogBox(text, image);
+        dialogBox.getStyleClass().add("user-dialog");
+        return dialogBox;
     }
 
     /** Creates a dialog aligned for a response from Heisenberg. */
     public static DialogBox getHeisenbergDialog(String text, Image image) {
         DialogBox dialogBox = new DialogBox(text, image);
         dialogBox.flip();
-        dialogBox.dialog.setStyle(
-                "-fx-background-color: #eeeeee; -fx-background-radius: 8; -fx-padding: 8;");
+        dialogBox.getStyleClass().add("heisenberg-dialog");
+        return dialogBox;
+    }
+
+    /** Creates a visually distinct chatbot dialog for invalid commands and storage errors. */
+    public static DialogBox getErrorDialog(String text, Image image) {
+        DialogBox dialogBox = getHeisenbergDialog(text, image);
+        dialogBox.getStyleClass().remove("heisenberg-dialog");
+        dialogBox.getStyleClass().add("error-dialog");
         return dialogBox;
     }
 
