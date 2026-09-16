@@ -3,27 +3,7 @@ package heisenberg;
 /** Formats the messages shown by the command-line and graphical interfaces. */
 public class Ui {
     public void showWelcome() {
-        System.out.print("""
-                ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⣿⠟⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢺⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠆⠜⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⠿⠿⠛⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣿⣿⣿⣿⣿
-                ⣿⣿⡏⠁⠀⠀⠀⠀⠀⣀⣠⣤⣤⣶⣶⣶⣶⣶⣦⣤⡄⠀⠀⠀⠀⢀⣴⣿⣿⣿⣿⣿
-                ⣿⣿⣷⣄⠀⠀⠀⢠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢿⡧⠇⢀⣤⣶⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣾⣮⣭⣿⡻⣽⣒⠀⣤⣜⣭⠐⢐⣒⠢⢰⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⣏⣿⣿⣿⣿⣿⣿⡟⣾⣿⠂⢈⢿⣷⣞⣸⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⣿⣽⣿⣿⣷⣶⣾⡿⠿⣿⠗⠈⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠻⠋⠉⠑⠀⠀⢘⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⣿⡿⠟⢹⣿⣿⡇⢀⣶⣶⠴⠶⠀⠀⢽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⣿⣿⣿⡿⠀⠀⢸⣿⣿⠀⠀⠣⠀⠀⠀⠀⠀⡟⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⣿⣿⣿⡿⠟⠋⠀⠀⠀⠀⠹⣿⣧⣀⠀⠀⠀⠀⡀⣴⠁⢘⡙⢿⣿⣿⣿⣿⣿⣿⣿⣿
-                ⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⠗⠂⠄⠀⣴⡟⠀⠀⡃⠀⠉⠉⠟⡿⣿⣿⣿⣿
-                ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢷⠾⠛⠂⢹⠀⠀⠀⢡⠀⠀⠀⠀⠀⠙⠛⠿⢿
-                My name is Walter Hartwell White.
-                I live at 308 Negra Arroyo Lane, Albuquerque, New Mexico, 87104.
-                What can I do for you?
-             """);
+        System.out.println(getWelcomeMessage());
     }
 
     public void showMessage(String message) {
@@ -32,13 +12,13 @@ public class Ui {
 
     public String getWelcomeMessage() {
         return """
-                My name is Walter Hartwell White.
-                I live at 308 Negra Arroyo Lane, Albuquerque, New Mexico, 87104.
-                What can I do for you?""";
+                Welcome. I run a precise operation.
+                Your tasks stay controlled and on schedule here.
+                What shall we put on the formula today?""";
     }
 
     public String getTaskListMessage(TaskList taskList) {
-        StringBuilder message = new StringBuilder("Here are the tasks in your list:");
+        StringBuilder message = new StringBuilder("Current formula:");
         for (int taskNumber = 1; taskNumber <= taskList.size(); taskNumber++) {
             message.append(String.format("%n%d. %s", taskNumber, taskList.getTask(taskNumber)));
         }
@@ -46,7 +26,7 @@ public class Ui {
     }
 
     public String getMatchingTasksMessage(TaskList matches) {
-        StringBuilder message = new StringBuilder("Here are the matching tasks in your list:");
+        StringBuilder message = new StringBuilder("No half measures. I isolated these matching tasks:");
         for (int taskNumber = 1; taskNumber <= matches.size(); taskNumber++) {
             message.append(String.format("%n%d. %s", taskNumber, matches.getTask(taskNumber)));
         }
@@ -54,24 +34,24 @@ public class Ui {
     }
 
     public String getTaskAddedMessage(Task task, TaskList taskList) {
-        return String.format("Got it. I've added this task:%n%s%nNow you have %d tasks in the list.",
+        return String.format("Let's cook. Reaction logged:%n%s%nThe formula now contains %d tasks.",
                 task, taskList.size());
     }
 
     public String getTaskMarkedMessage(Task task) {
-        return "Nice! I've marked this task as done:\n" + task;
+        return "Handled. One less loose end:\n" + task;
     }
 
     public String getTaskDeletedMessage(Task task, TaskList taskList) {
-        return String.format("Noted. I've removed this task:%n%s%nNow you have %d tasks in the list.",
+        return String.format("Tread lightly. Removed from the formula:%n%s%n%d tasks remain in the list.",
                 task, taskList.size());
     }
 
     public String getTasksSortedMessage(TaskList taskList) {
-        return "I've sorted your tasks by deadline.\n" + getTaskListMessage(taskList);
+        return "Deadlines calibrated from earliest to latest.\n" + getTaskListMessage(taskList);
     }
 
     public String getGoodbyeMessage() {
-        return "Goodbye!";
+        return "Stay out of my territory. Lab shutdown complete.";
     }
 }

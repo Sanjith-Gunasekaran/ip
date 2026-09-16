@@ -10,7 +10,7 @@
 }
 
 .dialog-scroll > .viewport > .content {
-    -fx-background-color: rgba(252, 246, 233, 0.72);
+    -fx-background-color: rgba(235, 245, 247, 0.74);
 }
 
 .dialog-scroll .scroll-bar:vertical {
@@ -18,7 +18,7 @@
 }
 
 .dialog-scroll .scroll-bar:vertical .thumb {
-    -fx-background-color: rgba(94, 63, 43, 0.42);
+    -fx-background-color: rgba(29, 91, 112, 0.44);
     -fx-background-radius: 6;
 }
 
@@ -32,15 +32,15 @@
 
 .user-dialog .message-bubble {
     -fx-text-fill: white;
-    -fx-background-color: #2f5d50;
+    -fx-background-color: #a85c36;
     -fx-background-radius: 12 2 12 12;
 }
 
 .heisenberg-dialog .message-bubble {
-    -fx-text-fill: #2e2924;
-    -fx-background-color: rgba(255, 253, 248, 0.94);
+    -fx-text-fill: #15394e;
+    -fx-background-color: rgba(244, 250, 252, 0.96);
     -fx-background-radius: 2 12 12 12;
-    -fx-effect: dropshadow(gaussian, rgba(49, 37, 26, 0.13), 5, 0.1, 0, 1);
+    -fx-effect: dropshadow(gaussian, rgba(21, 57, 78, 0.16), 5, 0.1, 0, 1);
 }
 
 .error-dialog .message-bubble {
@@ -53,21 +53,21 @@
 }
 
 .user-input {
-    -fx-background-color: rgba(255, 253, 248, 0.97);
+    -fx-background-color: rgba(244, 250, 252, 0.97);
     -fx-background-radius: 0;
-    -fx-border-color: rgba(100, 70, 45, 0.35);
+    -fx-border-color: rgba(29, 91, 112, 0.35);
     -fx-border-width: 1 0 0 0;
     -fx-font-size: 13px;
     -fx-padding: 0 14 0 14;
 }
 
 .user-input:focused {
-    -fx-border-color: #a8663a;
+    -fx-border-color: #1d5b70;
     -fx-border-width: 2 0 0 0;
 }
 
 .send-button {
-    -fx-background-color: #a8663a;
+    -fx-background-color: #1d5b70;
     -fx-background-radius: 0;
     -fx-text-fill: white;
     -fx-font-weight: bold;
@@ -75,5 +75,5 @@
 }
 
 .send-button:hover {
-    -fx-background-color: #8d512e;
+    -fx-background-color: #153f4f;
 }
